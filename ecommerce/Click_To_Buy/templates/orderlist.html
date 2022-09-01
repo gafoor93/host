@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+{% load static %}
+{% load cart_template_tag %}
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+  <title>cart page</title>
+  <meta content="" name="description">
+  <meta content="" name="keywords">
+
+  <!-- Favicons -->
+  <link href="{% static 'img/favicon.jpg' %}" rel="icon">
+  <link href="{% static 'img/apple-touch-icon.png' %}" rel="apple-touch-icon">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="{% static 'vendor/aos/aos.css' %}" rel="stylesheet">
+  <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+  <link href="{% static 'vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
+  <link href="{% static 'vendor/boxicons/css/boxicons.min.css' %}" rel="stylesheet">
+  <link href="{% static 'vendor/glightbox/css/glightbox.min.css' %}" rel="stylesheet">
+  <link href="{% static 'vendor/remixicon/remixicon.css' %}" rel="stylesheet">
+  <link href="{% static 'vendor/swiper/swiper-bundle.min.css' %}" rel="stylesheet">
+
+    <link href="{% static 'css/order.css' %}" rel="stylesheet">
+
+  <!-- Template Main CSS File -->
+
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
+
+
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js"></script>
+
+
+</head>
+
+<body>
+
+  <!-- ======= Header ======= -->
+  <header id="header" class="fixed-top d-flex align-items-center" >
+    <div class="container">
+      <div class="header-container d-flex align-items-center justify-content-between">
+        <div class="logo">
+          <h1 class="text-light"><a href="index.html"><span>Click To Buy</span></a></h1>
+          <!-- Uncomment below if you prefer to use an image logo -->
+          <!-- <a href="index.html"><img src="assets/img/logo.png" alt="" class="img-fluid"></a>-->
+        </div>
+
+        <nav id="navbar" class="navbar" style="background-color:dark;">
+          <ul>
+             {% if user.is_authenticated %}
+              <li><a class="nav-link scrollto active" href="{% url 'index' %}">Home</a></li>
+              <li><a  href="{% url 'orderlist' %}"> <i class="fas fa-shopping-cart fa-fw fa-lg"></i>Cart&nbsp;&nbsp;
+              <div style="color:red;">{{  request.user | cart_item_count }}</div>
+               </a></li>
+
+              {% if user.is_superuser %}
+              <li><a class="nav-link scrollto active" href="{% url 'add_product' %}">Add Product</a></li>
+              {% endif %}
+
+              <li><a class="nav-link scrollto active">Welcome {{user.username}}</a></li>
+              <li><a class="getstarted scrollto" href="{% url 'user_logout' %}">Logout</a></li>
+              {% else %}
+              <li><a class="getstarted scrollto" href="{% url 'user_login' %}">Login</a></li>
+              <li><a class="getstarted scrollto" href="{% url 'user_register' %}">Register</a></li>
+              {% endif %}
+          </ul>
+          <i class="bi bi-list mobile-nav-toggle"></i>
+        </nav><!-- .navbar -->
+
+      </div><!-- End Header Container -->
+    </div>
+  </header><!-- End Header -->
+
+  <main id="main">
+
+
+
+
+    <section>
+      <div class="container">
+          <h2 class="text-dark" style="margin-top:35px;">Shopping Cart</h2>
+          <table class="table">
+              <thead class="thead-dark">
+              <tr>
+                  <th scope="col">Sl No</th>
+                  <th scope="col">Item Name</th>
+                  <th scope="col">Price</th>
+                  <th scope="col">Quantity</th>
+                  <th scope="col">Total Item Price</th>
+              </tr>
+              </thead>
+              <tbody>
+              {% for order_item in order.items.all %}
+              <tr>
+                  <th scope="row">{{forloop.counter}}</th>
+                  <td>{{ order_item.Product.name }}</td>
+                  <td>Rs. {{ order_item.Product.price }}</td>
+                  <td>
+                      <a href="{% url 'remove_item' order_item.Product.pk %}">-</a> &nbsp;
+                      {{ order_item.quantity }} &nbsp;
+                      <a href="{% url 'add_item' order_item.Product.pk %}">+</a>
+                  </td>
+                  <td>Rs. {{ order_item.get_total_item_price }}</td>
+              </tr>
+
+               {% empty %}
+              <tr class="row100 body">
+                  <td class="cell100 column1">Your Cart is Empty</td>
+                  <td colspan="cell100 column1">
+                  </td>
+              </tr>
+              {% endfor %}
+
+              {% if order.get_total_price %}
+              <tr class="row100 body" style="background-color:#191919">
+                  <td class="cell100 column1" style="color:white;"><b>Total Order Price</b></td>
+                  <td class="cell100 column2"></td>
+                  <td class="cell100 column3"></td>
+                  <td class="cell100 column4"></td>
+                  <td class="cell100 column5" style="color:white;">Rs. {{order.get_total_price}}</td>
+              </tr>
+
+
+              {% endif %}
+
+              </tbody>
+          </table>
+
+                      <a href="{% url 'checkout' %}" class="btn btn-warning float-right ml-2">Checkout</a>
+                      <a href="/" class="btn btn-primary  float-right"> Continue Shopping</a>
+
+
+      </div>
+    </section>
+  </main><!-- End #main -->
+
+  <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+
+  <!-- Vendor JS Files -->
+  <script src="assets/vendor/purecounter/purecounter.js"></script>
+  <script src="assets/vendor/aos/aos.js"></script>
+  <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="assets/vendor/glightbox/js/glightbox.min.js"></script>
+  <script src="assets/vendor/isotope-layout/isotope.pkgd.min.js"></script>
+  <script src="assets/vendor/swiper/swiper-bundle.min.js"></script>
+  <script src="assets/vendor/php-email-form/validate.js"></script>
+
+  <!-- Template Main JS File -->
+  <script src="assets/js/main.js"></script>
+    <br>
+    {% if messages %}
+    {% for message in messages %}
+    <center><h6 class="login-title" style="color:red;">{{message}}</h6></center>
+    {% endfor %}
+    {% endif %}
+
+</body>
+ <script src="{% static 'vendor/purecounter/purecounter.js' %}"></script>
+  <script src="{% static 'vendor/aos/aos.js' %}"></script>
+  <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+  <script src="{% static 'vendor/glightbox/js/glightbox.min.js' %}"></script>
+  <script src="{% static 'vendor/isotope-layout/isotope.pkgd.min.js' %}"></script>
+  <script src="{% static 'vendor/swiper/swiper-bundle.min.js' %}"></script>
+  <script src="{% static 'vendor/php-email-form/validate.js' %}"></script>
+
+  <!-- Template Main JS File -->
+  <script src="{% static 'js/main.js' %}"></script>
+
+</html>
